@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Only authenticated users can read room metadata
+    match /chatrooms/{roomId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid in resource.data.members;
+      
+      // Only members can read/write messages
+      match /messages/{msgId} {
+        allow read, write: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chatrooms/$(roomId)).data.members;
+      }
+
+      // Join requests: only the user can create their own request, only members can approve/reject
+      match /joinRequests/{userId} {
+        allow create: if request.auth != null && request.auth.uid == userId;
+        allow read: if request.auth != null && (
+          request.auth.uid == userId || // The requester can read their own request
+          request.auth.uid in get(/databases/$(database)/documents/chatrooms/$(roomId)).data.members // Members can see all requests
+        );
+        allow update: if request.auth != null && (
+          // Only members can approve/reject
+          request.auth.uid in get(/databases/$(database)/documents/chatrooms/$(roomId)).data.members ||
+          // The requester can cancel their own request
+          (request.auth.uid == userId && request.resource.data.status == "cancelled")
+        );
+        allow delete: if false; // No one can delete join requests directly
+      }
+
+      // Typing indicator: only members can write/read
+      match /typing/{userId} {
+        allow read, write: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chatrooms/$(roomId)).data.members;
+      }
+    }
+
+    // User profile and recent rooms
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+} 

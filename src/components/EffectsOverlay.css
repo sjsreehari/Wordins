@@ -1,0 +1,254 @@
+.effects-overlay.hearts-overlay {
+  pointer-events: none;
+  z-index: 1000;
+}
+.heart-particle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  animation: heart-fly var(--duration,2s) cubic-bezier(0.4,0.7,0.6,1) both;
+  animation-delay: var(--delay,0s);
+  will-change: transform, opacity;
+}
+@keyframes heart-fly {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + 0.7 * var(--drift,0px) + 120px * cos(var(--angle,0))), calc(-50% + 0.7 * var(--drift,0px) - 180px * sin(var(--angle,0)))) scale(1.2) rotate(0deg);
+  }
+}
+.heart-emoji {
+  display: inline-block;
+  filter: drop-shadow(0 2px 8px #f472b6cc);
+  transition: filter 0.2s;
+}
+.pulse .heart-emoji {
+  animation: heart-pulse 1.1s infinite alternate;
+}
+@keyframes heart-pulse {
+  0% { filter: brightness(1) drop-shadow(0 2px 8px #f472b6cc); transform: scale(1); }
+  100% { filter: brightness(1.3) drop-shadow(0 4px 16px #f472b6); transform: scale(1.18); }
+}
+.spin .heart-emoji {
+  animation: heart-spin 1.5s linear infinite;
+}
+@keyframes heart-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.trail .heart-trail {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.7;
+  animation: heart-trail-fade 1.5s linear forwards;
+}
+@keyframes heart-trail-fade {
+  0% { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+.split-left, .split-right {
+  position: absolute;
+  top: 0;
+  opacity: 0.9;
+  animation: heart-split 1.1s cubic-bezier(0.4,0.7,0.6,1) forwards;
+}
+.split-left {
+  left: -18px;
+  animation-name: heart-split-left;
+}
+.split-right {
+  left: 18px;
+  animation-name: heart-split-right;
+}
+@keyframes heart-split-left {
+  0% { opacity: 0; transform: scale(0.7) translateX(0); }
+  10% { opacity: 1; }
+  100% { opacity: 0; transform: scale(0.7) translateX(-40px) translateY(-60px) rotate(-30deg); }
+}
+@keyframes heart-split-right {
+  0% { opacity: 0; transform: scale(0.7) translateX(0); }
+  10% { opacity: 1; }
+  100% { opacity: 0; transform: scale(0.7) translateX(40px) translateY(-60px) rotate(30deg); }
+}
+.bg_heart {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1000;
+}
+.css-heart {
+  position: absolute;
+  top: 110%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  background: #f472b6;
+  transform: rotate(-45deg);
+  border-radius: 0 0 100% 100%;
+  opacity: 0.85;
+  box-shadow: 0 2px 12px #f472b644;
+}
+.css-heart:before, .css-heart:after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  border-radius: 100%;
+}
+.css-heart:before {
+  top: -50%;
+  left: 0;
+}
+.css-heart:after {
+  top: 0;
+  right: -50%;
+}
+@keyframes love {
+  0% {
+    top: 110%;
+    opacity: 0.7;
+    transform: rotate(-45deg) scale(0.8);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    top: -10%;
+    opacity: 0;
+    transform: rotate(-45deg) scale(1.2);
+  }
+}
+.firework-particle {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  box-shadow: 0 0 12px 2px #fff8;
+  opacity: 0.95;
+  will-change: transform, opacity;
+}
+@keyframes firework-explode {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+    box-shadow: 0 0 12px 2px #fff8;
+  }
+  70% {
+    opacity: 1;
+    box-shadow: 0 0 18px 6px #fff8;
+  }
+  100% {
+    transform: translate(var(--tx, 0), calc(var(--ty, 0) + 40px)) scale(0.7);
+    opacity: 0;
+    box-shadow: 0 0 0 0 #fff0;
+  }
+}
+.pyro > .before, .pyro > .after {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.before.fireworks-boxshadow {
+  box-shadow: 0 0 #fff;
+  animation: bang 1s ease-out infinite backwards, gravity 1s ease-in infinite backwards, position 5s linear infinite backwards;
+}
+.after.fireworks-boxshadow {
+  animation: bang 1.25s ease-out 1 backwards, gravity 1.25s ease-in 1 backwards, position 6.25s linear 1 backwards;
+}
+@keyframes bang {
+  to {
+    /* box-shadow is set inline by React for each explosion */
+  }
+}
+@keyframes gravity {
+  to {
+    transform: translateY(200px);
+    opacity: 0;
+  }
+}
+@keyframes position {
+  0%, 19.9% {
+    margin-top: 10%;
+    margin-left: 40%;
+  }
+  20%, 39.9% {
+    margin-top: 40%;
+    margin-left: 30%;
+  }
+  40%, 59.9% {
+    margin-top: 20%;
+    margin-left: 70%;
+  }
+  60%, 79.9% {
+    margin-top: 30%;
+    margin-left: 20%;
+  }
+  80%, 99.9% {
+    margin-top: 30%;
+    margin-left: 80%;
+  }
+}
+.immersive-fireworks-overlay {
+  background: radial-gradient(ellipse at center, #181c2a 80%, #0a0a16 100%);
+  pointer-events: none;
+  z-index: 9999;
+  animation: immersive-fade 0.3s ease-in;
+}
+@keyframes immersive-fade {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.starry-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.star {
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  opacity: 0.7;
+  animation: star-twinkle 2.2s infinite alternate;
+}
+@keyframes star-twinkle {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+.fireworks-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0) 60%, rgba(0,0,0,0.7) 100%);
+}
+.fireworks-center-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 32px #000a);
+} 
