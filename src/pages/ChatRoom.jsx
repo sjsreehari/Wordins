@@ -4,7 +4,7 @@ import { auth, db } from "../firebase";
 import { addDoc, collection, query, onSnapshot, orderBy, serverTimestamp, doc, getDoc, updateDoc, onSnapshot as onDocSnapshot, setDoc, deleteDoc, getDocs } from "firebase/firestore";
 import { format } from "date-fns";
 import ReactCanvasConfetti from "react-canvas-confetti";
-import Button from '../components/Button';
+import Button from '../components/ui/Button';
 import { useToast } from '../components/Toast';
 
 const ChatRoom = () => {
@@ -128,6 +128,7 @@ const ChatRoom = () => {
   }, [roomId, isMember]);
 
   const handleApprove = async (req) => {
+    if (!window.confirm('Approve this join request?')) return;
     const roomRef = doc(db, "chatrooms", roomId);
     const joinReqRef = doc(db, `chatrooms/${roomId}/joinRequests`, req.id);
     const roomSnap = await getDoc(roomRef);
@@ -137,11 +138,14 @@ const ChatRoom = () => {
       await updateDoc(roomRef, { members: [...currentMembers, req.userId] });
     }
     await updateDoc(joinReqRef, { status: "approved" });
+    toast.showToast("User approved and added to room.", "success");
   };
 
   const handleReject = async (req) => {
+    if (!window.confirm('Reject this join request?')) return;
     const joinReqRef = doc(db, `chatrooms/${roomId}/joinRequests`, req.id);
     await updateDoc(joinReqRef, { status: "rejected" });
+    toast.showToast("Join request rejected.", "info");
   };
 
   const handleInputChange = (e) => {
@@ -359,7 +363,7 @@ const ChatRoom = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 relative overflow-hidden">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-900 via-purple-800 to-blue-700 relative overflow-hidden">
       {/* Full-screen Effects */}
       <ReactCanvasConfetti
         refConfetti={confettiRef}
@@ -375,7 +379,7 @@ const ChatRoom = () => {
         }}
       />
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center shadow-sm">
+      <header className="sticky top-0 z-10 bg-white/10 backdrop-blur-md border-b border-white/20 px-6 py-4 flex justify-between items-center shadow-lg">
         <div className="flex items-center">
           <button
             onClick={() => navigate("/")}
@@ -433,9 +437,13 @@ const ChatRoom = () => {
             <ul className="space-y-2 w-full">
               {room?.members?.map(uid => (
                 <li key={uid} className="flex items-center gap-2 px-2 py-1 rounded hover:bg-purple-50">
+                  {/* Show avatar if available, else default */}
+                  {room?.memberMeta?.[uid]?.photoURL ? (
+                    <img src={room.memberMeta[uid].photoURL} alt={room.memberMeta[uid].displayName || uid} className="h-8 w-8 rounded-full border" />
+                  ) : <span><DefaultAvatar size={32} /></span>}
                   {room?.createdBy === uid ? <span title="Owner" className="text-yellow-500">👑</span> : null}
-                  {auth.currentUser?.uid === uid ? <span className="text-green-500 font-bold">You</span> : null}
-                  <span className="text-gray-700 break-all">{uid}</span>
+                  {auth.currentUser?.uid === uid ? <span className="text-green-500 font-bold" title="You">You</span> : null}
+                  <span className="text-gray-700 break-all">{room?.memberMeta?.[uid]?.displayName || uid}</span>
                 </li>
               ))}
             </ul>
@@ -475,7 +483,7 @@ const ChatRoom = () => {
         </div>
       )}
       {/* Messages */}
-      <main ref={mainRef} className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-2 relative">
+      <main ref={mainRef} className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-3 relative max-w-3xl mx-auto w-full">
         {/* Typing indicator */}
         {typingUsers.length > 0 && (
           <div className="flex items-center gap-2 mb-2 text-sm text-purple-500 animate-pulse" aria-live="polite">
@@ -525,8 +533,8 @@ const ChatRoom = () => {
                     )}
                     <div className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 shadow-lg relative ${
                       isCurrentUser
-                        ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white rounded-l-2xl rounded-br-2xl"
-                        : "bg-white text-gray-800 rounded-r-2xl rounded-bl-2xl border"
+                        ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white rounded-l-2xl rounded-br-2xl hover:scale-105 hover:shadow-xl"
+                        : "bg-white text-gray-800 rounded-r-2xl rounded-bl-2xl border hover:bg-purple-50 hover:scale-105 hover:shadow-xl"
                     }`}>
                       {!isCurrentUser && (
                         <p className="text-xs font-bold mb-1 text-purple-700">{msg.senderName || "Unknown"}</p>
@@ -568,7 +576,7 @@ const ChatRoom = () => {
         )}
       </main>
       {/* Message Input */}
-      <footer className="sticky bottom-0 bg-transparent p-6 flex flex-col gap-2" style={{ paddingBottom: 'env(safe-area-inset-bottom, 24px)' }}>
+      <footer className="sticky bottom-0 bg-white/10 backdrop-blur-md p-6 flex flex-col gap-2 max-w-3xl mx-auto w-full" style={{ paddingBottom: 'env(safe-area-inset-bottom, 24px)' }}>
         {/* Error feedback for send */}
         {sendError && (
           <div className="mb-2 text-sm text-red-600 bg-red-50 rounded p-2 text-center animate-pulse" aria-live="assertive">{sendError}</div>
@@ -615,7 +623,7 @@ const ChatRoom = () => {
         <p className="text-xs text-gray-400 mt-1 ml-2">Press <b>Enter</b> to send</p>
       </footer>
       {effectOverlay === "hearts" && (
-        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center">
+        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center" aria-label="Hearts effect overlay">
           {[...Array(14)].map((_, i) => (
             <span key={i} className={`absolute creative-heart`} style={{
               left: '50%',

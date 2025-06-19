@@ -4,8 +4,10 @@ import { db, auth } from "../firebase";
 import { doc, getDoc, setDoc, collection, getDocs, updateDoc, onSnapshot, query, where } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { useToast } from "../components/Toast";
-import Button from '../components/Button';
+import Button from '../components/ui/Button';
+import { Helmet } from "react-helmet";
 
+// Production-ready, accessible, and SEO-friendly Home page for Wordins.
 function Home() {
   const [mode, setMode] = useState(null); // "create" or "join"
   const [roomName, setRoomName] = useState("");
@@ -493,17 +495,52 @@ function Home() {
   }, [roomMenuOpen]);
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-indigo-900 via-purple-800 to-blue-700 relative">
+      <Helmet>
+        <title>Wordins – Home</title>
+        <meta name="description" content="Wordins is your space for real-time conversations, creative collaboration, and vibrant communities. Create or join rooms, chat, and vibe." />
+      </Helmet>
+      {/* Profile floating card (top right) - must be outside and above main content */}
+      <div className="fixed top-6 right-8 z-50" ref={profileMenuRef}>
+        <button
+          className="flex items-center gap-2 px-3 py-2 bg-white rounded-full shadow hover:bg-purple-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          onClick={() => setProfileMenuOpen((open) => !open)}
+          aria-label="Open profile menu"
+        >
+          {selectedAvatar ? (
+            <img src={selectedAvatar} alt="Profile" className="h-8 w-8 rounded-full border" />
+          ) : (
+            <span className="h-8 w-8 rounded-full bg-purple-200 flex items-center justify-center text-lg font-bold text-purple-700">{userDisplayName[0]}</span>
+          )}
+          <span className="font-semibold text-purple-700 max-w-[120px] truncate">{userDisplayName}</span>
+        </button>
+        {profileMenuOpen && (
+          <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 flex flex-col p-4">
+            <div className="flex flex-col items-center mb-3">
+              {selectedAvatar ? (
+                <img src={selectedAvatar} alt="Profile" className="h-14 w-14 rounded-full border mb-2" />
+              ) : (
+                <span className="h-14 w-14 rounded-full bg-purple-200 flex items-center justify-center text-2xl font-bold text-purple-700 mb-2">{userDisplayName[0]}</span>
+              )}
+              <span className="font-bold text-lg text-purple-700">{userDisplayName}</span>
+              <span className="text-gray-500 text-sm mt-1">{auth.currentUser?.email || "No email"}</span>
+              <span className="text-gray-400 text-xs mt-1 italic">Bio: Coming soon</span>
+            </div>
+            <Button className="w-full bg-blue-500 hover:bg-blue-600 mb-2" onClick={() => setShowAvatarModal(true)} ariaLabel="Edit profile">Edit Profile</Button>
+            <Button className="w-full bg-red-500 hover:bg-red-600" onClick={handleLogout} ariaLabel="Log out">Log Out</Button>
+          </div>
+        )}
+      </div>
       {/* Sidebar for recent rooms */}
-      <aside ref={sidebarRef} className="w-full md:w-80 bg-white shadow-lg md:rounded-r-3xl flex flex-col items-center py-8 px-4 md:px-6 mb-4 md:mb-0 overflow-y-auto max-h-screen border-r border-gray-200">
-        <h2 className="text-2xl font-bold mb-4 text-purple-700">Recent Rooms</h2>
+      <aside ref={sidebarRef} className="w-full md:w-80 bg-white/10 backdrop-blur-md shadow-lg md:rounded-r-3xl flex flex-col items-center py-8 px-4 md:px-6 mb-4 md:mb-0 overflow-y-auto max-h-screen border-r border-white/20">
+        <h2 className="text-2xl font-bold mb-4 text-purple-200">Recent Rooms</h2>
         <div className="w-full mb-4">
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search..."
-            className={`w-full px-3 py-2 rounded border ${error ? 'border-red-400' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-500`}
+            className={`w-full px-3 py-2 rounded border border-white/20 bg-white/10 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-500`}
             aria-label="Search rooms"
             tabIndex={0}
           />
@@ -520,7 +557,7 @@ function Home() {
         )}
         <ul className="w-full space-y-2">
           {filteredRooms.map(room => (
-            <li key={room} className="flex items-center justify-between bg-purple-50 rounded px-3 py-2 relative transition duration-200 ease-in-out hover:scale-105 hover:bg-purple-100">
+            <li key={room} className={`flex items-center justify-between bg-purple-50 rounded px-3 py-2 relative transition-all duration-300 ease-in-out hover:scale-105 hover:bg-purple-100 ${roomMenuOpen === room ? 'mb-16' : ''}`}>
               <button
                 className="truncate flex items-center gap-1 text-left focus:outline-none focus:ring-2 focus:ring-purple-400 w-full"
                 title={room}
@@ -543,7 +580,7 @@ function Home() {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
               </button>
               {roomMenuOpen === room && (
-                <div className="absolute right-0 top-10 bg-white border border-gray-200 rounded-lg shadow-lg z-50 flex flex-col min-w-[120px]">
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 flex flex-col min-w-[120px] animate-fade-in-up">
                   <Button
                     onClick={() => { handleLeaveRoom(room); setRoomMenuOpen(null); }}
                     ariaLabel={`Leave ${room}`}
@@ -589,11 +626,11 @@ function Home() {
         )}
       </aside>
       {/* Main content */}
-      <main className="flex-1 flex flex-col items-center justify-center p-6">
+      <main className="flex-1 flex flex-col items-center justify-center p-6 min-h-[calc(100vh-64px)]">
         {/* Error/info messages */}
         {(error || info || logoutMsg) && (
           <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4">
-            <div className={`p-3 rounded-lg shadow text-center text-sm font-medium border animate-fade-in-up ${error ? 'bg-red-50 text-red-700 border-red-200' : info ? 'bg-green-50 text-green-700 border-green-200' : 'bg-purple-50 text-purple-700 border-purple-200'}`}
+            <div className={`p-3 rounded-lg shadow text-center text-base font-semibold border animate-fade-in-up ${error ? 'bg-red-100 text-red-800 border-red-300' : info ? 'bg-green-100 text-green-800 border-green-300' : 'bg-purple-100 text-purple-800 border-purple-300'}`}
               aria-live="assertive">
               {error || info || logoutMsg}
             </div>
@@ -619,61 +656,13 @@ function Home() {
             </div>
           </div>
         )}
-        {/* Owner join requests UI */}
-        {ownerRequests.length > 0 && (
-          <div className="bg-yellow-50 border border-yellow-400 text-yellow-800 px-4 py-2 rounded mb-4 w-full max-w-md">
-            <h4 className="font-bold mb-2">Pending Join Requests</h4>
-            <ul>
-              {ownerRequests.map(req => (
-                <li key={req.userId + req.roomId} className="flex justify-between items-center mb-1">
-                  <span>{req.displayName || req.userId} for <b>{req.roomId}</b></span>
-                  <div className="flex gap-2">
-                    <button className="text-green-600 hover:underline" onClick={() => handleApproveRequest(req.roomId, req.userId)}>Approve</button>
-                    <button className="text-red-600 hover:underline" onClick={() => handleRejectRequest(req.roomId, req.userId)}>Reject</button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
         {/* Welcome header at the top */}
-        <h1 className="text-4xl font-extrabold text-center mb-8 text-purple-700 tracking-tight">Welcome to Wordins 🚀</h1>
+        <h1 className="text-5xl md:text-6xl font-extrabold text-center mb-10 text-purple-100 tracking-tight drop-shadow-lg">Welcome to Wordins 🚀</h1>
         {/* Feature boxes side by side on desktop, stacked on mobile */}
-        <div className="w-full flex flex-col md:flex-row gap-8 items-stretch justify-center">
+        <div className="w-full flex flex-col md:flex-row gap-10 items-stretch justify-center">
           {/* First box: Chat with your friends */}
-          <div className="flex-1 bg-white rounded-3xl shadow-xl p-8 relative flex flex-col items-center mb-8 md:mb-0">
-            <h2 className="text-2xl font-bold text-center mb-6 text-purple-700">Chat with your friends</h2>
-            {/* Move the profile section to the top right corner of the page */}
-            <div className="fixed top-6 right-8 z-50" ref={profileMenuRef}>
-              <button
-                className="flex items-center gap-2 px-3 py-2 bg-white rounded-full shadow hover:bg-purple-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                onClick={() => setProfileMenuOpen((open) => !open)}
-                aria-label="Open profile menu"
-              >
-                {selectedAvatar ? (
-                  <img src={selectedAvatar} alt="Profile" className="h-8 w-8 rounded-full border" />
-                ) : (
-                  <span className="h-8 w-8 rounded-full bg-purple-200 flex items-center justify-center text-lg font-bold text-purple-700">{userDisplayName[0]}</span>
-                )}
-                <span className="font-semibold text-purple-700 max-w-[120px] truncate">{userDisplayName}</span>
-              </button>
-              {profileMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 flex flex-col p-4">
-                  <div className="flex flex-col items-center mb-3">
-                    {selectedAvatar ? (
-                      <img src={selectedAvatar} alt="Profile" className="h-14 w-14 rounded-full border mb-2" />
-                    ) : (
-                      <span className="h-14 w-14 rounded-full bg-purple-200 flex items-center justify-center text-2xl font-bold text-purple-700 mb-2">{userDisplayName[0]}</span>
-                    )}
-                    <span className="font-bold text-lg text-purple-700">{userDisplayName}</span>
-                    <span className="text-gray-500 text-sm mt-1">{auth.currentUser?.email || "No email"}</span>
-                    <span className="text-gray-400 text-xs mt-1 italic">Bio: Coming soon</span>
-                  </div>
-                  <Button className="w-full bg-blue-500 hover:bg-blue-600 mb-2" onClick={() => setShowAvatarModal(true)} ariaLabel="Edit profile">Edit Profile</Button>
-                  <Button className="w-full bg-red-500 hover:bg-red-600" onClick={handleLogout} ariaLabel="Log out">Log Out</Button>
-                </div>
-              )}
-            </div>
+          <div className="flex-1 bg-white/20 backdrop-blur-md rounded-3xl shadow-2xl p-10 relative flex flex-col items-center mb-10 md:mb-0 min-w-[320px] max-w-xl">
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-purple-100">Chat with your friends</h2>
             {/* Existing create/join room UI */}
             {!mode && (
               <div className="flex flex-col items-center gap-4 w-full">
@@ -750,8 +739,8 @@ function Home() {
             )}
           </div>
           {/* Second box: GameChat */}
-          <div className="flex-1 bg-white rounded-3xl shadow-xl p-8 relative flex flex-col items-center mb-8 md:mb-0">
-            <h2 className="text-2xl font-bold text-center mb-6 text-purple-700">GameChat</h2>
+          <div className="flex-1 bg-white/20 backdrop-blur-md rounded-3xl shadow-2xl p-10 relative flex flex-col items-center mb-10 md:mb-0 min-w-[320px] max-w-xl">
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-blue-100">GameChat</h2>
             <Button className="w-full text-lg py-4" ariaLabel="Start GameChat" onClick={() => navigate('/gamechat')}>Start</Button>
           </div>
         </div>
