@@ -202,3 +202,6 @@
 .animate-spin-slow {
   animation: spin-slow 6s linear infinite;
 }
+
+.loader { border: 2px solid #e5e7eb; border-top: 2px solid #8b5cf6; border-radius: 50%; width: 1.25rem; height: 1.25rem; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
