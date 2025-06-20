@@ -482,161 +482,150 @@ const ChatRoom = () => {
           </div>
         </div>
       )}
-      {/* Messages */}
-      <main ref={mainRef} className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col gap-3 relative max-w-3xl mx-auto w-full">
-        {/* Typing indicator */}
-        {typingUsers.length > 0 && (
-          <div className="flex items-center gap-2 mb-2 text-sm text-purple-500 animate-pulse" aria-live="polite">
-            <span>{typingUsers.join(", ")}</span>
-            <span className="inline-flex items-center ml-1">
-              <span className="dot bg-purple-400 mx-0.5 rounded-full" style={{width:6,height:6,display:'inline-block',animation:'bounce 1s infinite alternate'}}></span>
-              <span className="dot bg-purple-400 mx-0.5 rounded-full" style={{width:6,height:6,display:'inline-block',animation:'bounce 1s 0.2s infinite alternate'}}></span>
-              <span className="dot bg-purple-400 mx-0.5 rounded-full" style={{width:6,height:6,display:'inline-block',animation:'bounce 1s 0.4s infinite alternate'}}></span>
-            </span>
-          </div>
-        )}
-        {loading ? (
-          <div className="flex-1 flex items-center justify-center text-purple-400 animate-pulse">Loading messages...</div>
-        ) : messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-gray-400 py-12">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <circle cx="12" cy="12" r="10" stroke="#a78bfa" strokeWidth="2" fill="#f3e8ff" />
-              <text x="50%" y="55%" textAnchor="middle" fill="#a78bfa" fontSize="24" fontFamily="Arial" dy=".3em">💬</text>
-            </svg>
-            <p className="text-lg font-semibold">No messages yet</p>
-            <p className="text-sm">Be the first to send a message!</p>
-          </div>
-        ) : (
-          (() => {
-            let lastDate = null;
-            return messages.map((msg, i) => {
-              const isCurrentUser = msg.uid === auth.currentUser?.uid;
-              const msgDate = msg.timestamp && msg.timestamp.toDate ? msg.timestamp.toDate().toDateString() : null;
-              const showDate = msgDate && msgDate !== lastDate;
-              lastDate = msgDate;
-              return (
-                <React.Fragment key={msg.id || i}>
-                  {showDate && (
-                    <div className="flex justify-center my-2">
-                      <span className="bg-purple-100 text-purple-700 px-4 py-1 rounded-full text-xs font-semibold shadow">{msgDate}</span>
-                    </div>
-                  )}
-                  <div className={`flex mb-2 ${isCurrentUser ? "justify-end" : "justify-start"}`}>
-                    {!isCurrentUser && (
-                      msg.senderPhotoURL ? (
-                        <img
-                          src={msg.senderPhotoURL}
-                          alt={msg.senderName}
-                          className="h-9 w-9 rounded-full mr-3 border shadow"
-                        />
-                      ) : <span className="mr-3"><DefaultAvatar size={36} /></span>
-                    )}
-                    <div className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 shadow-lg relative ${
-                      isCurrentUser
-                        ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white rounded-l-2xl rounded-br-2xl hover:scale-105 hover:shadow-xl"
-                        : "bg-white text-gray-800 rounded-r-2xl rounded-bl-2xl border hover:bg-purple-50 hover:scale-105 hover:shadow-xl"
-                    }`}>
-                      {!isCurrentUser && (
-                        <p className="text-xs font-bold mb-1 text-purple-700">{msg.senderName || "Unknown"}</p>
-                      )}
-                      <p className="break-words text-base">{msg.text}</p>
-                      <p className={`text-xs mt-1 ${isCurrentUser ? "text-purple-200" : "text-gray-400"}`}>
-                        {msg.timestamp && msg.timestamp.toDate
-                          ? format(msg.timestamp.toDate(), "h:mm a")
-                          : "Just now"}
-                      </p>
-                    </div>
-                    {isCurrentUser && (
-                      auth.currentUser?.photoURL ? (
-                        <img
-                          src={auth.currentUser?.photoURL}
-                          alt="You"
-                          className="h-9 w-9 rounded-full ml-3 border shadow"
-                        />
-                      ) : <span className="ml-3"><DefaultAvatar size={36} /></span>
-                    )}
-                  </div>
-                </React.Fragment>
-              );
-            });
-          })()
-        )}
-        <div ref={messagesEndRef} />
-        {showScrollToBottom && (
-          <button
-            className="fixed bottom-28 right-6 z-40 bg-purple-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-purple-700 transition"
-            onClick={() => {
-              messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-              setShowScrollToBottom(false);
-            }}
-            style={{ minWidth: 120 }}
-          >
-            New messages ↓
-          </button>
-        )}
-      </main>
-      {/* Message Input */}
-      <footer className="sticky bottom-0 bg-white/10 backdrop-blur-md p-6 flex flex-col gap-2 max-w-3xl mx-auto w-full" style={{ paddingBottom: 'env(safe-area-inset-bottom, 24px)' }}>
-        {/* Error feedback for send */}
-        {sendError && (
-          <div className="mb-2 text-sm text-red-600 bg-red-50 rounded p-2 text-center animate-pulse" aria-live="assertive">{sendError}</div>
-        )}
-        <form
-          onSubmit={sendMessage}
-          className="flex items-center w-full gap-2 bg-white rounded-full shadow-2xl border border-gray-200 px-4 py-2 max-w-3xl mx-auto"
-          style={{ position: 'relative' }}
-        >
-          {/* Emoji button on far left */}
-          <button
-            type="button"
-            aria-label="Open emoji picker"
-            onClick={() => setEmojiPickerOpen(!emojiPickerOpen)}
-            className="h-12 w-12 flex items-center justify-center bg-yellow-100 hover:bg-yellow-200 transition text-2xl rounded-full border-none focus:outline-none shadow-sm mr-2 focus:ring-2 focus:ring-purple-400"
-            tabIndex={0}
-            style={{ minWidth: 48 }}
-          >
-            <span role="img" aria-label="emoji">😊</span>
-          </button>
-          {emojiPickerOpen && (
-            <div id="emoji-picker" className="absolute bottom-16 left-0 bg-white border rounded shadow p-2 z-10 flex flex-wrap gap-1">
-              {["😀","😂","😍","😎","😭","👍","🎉","❤️","🔥","👏"].map(e => (
-                <button key={e} type="button" className="text-2xl" onClick={() => handleEmoji(e)}>{e}</button>
-              ))}
+      {/* Chat Messages Area */}
+      <div className="flex-1 flex flex-col items-center justify-end w-full">
+        <main ref={mainRef} className="flex-1 w-full max-w-2xl mx-auto flex flex-col gap-3 overflow-y-auto px-2 sm:px-4 md:px-6 pb-2" style={{minHeight:0}}>
+          {/* Typing indicator */}
+          {typingUsers.length > 0 && (
+            <div className="flex items-center gap-2 mb-2 text-sm text-purple-500 animate-pulse" aria-live="polite">
+              <span>{typingUsers.join(", ")}</span>
+              <span className="inline-flex items-center ml-1">
+                <span className="dot bg-purple-400 mx-0.5 rounded-full" style={{width:6,height:6,display:'inline-block',animation:'bounce 1s infinite alternate'}}></span>
+                <span className="dot bg-purple-400 mx-0.5 rounded-full" style={{width:6,height:6,display:'inline-block',animation:'bounce 1s 0.2s infinite alternate'}}></span>
+                <span className="dot bg-purple-400 mx-0.5 rounded-full" style={{width:6,height:6,display:'inline-block',animation:'bounce 1s 0.4s infinite alternate'}}></span>
+              </span>
             </div>
           )}
-          {/* Input box in the center */}
-          <input
-            ref={inputRef}
-            type="text"
-            value={input}
-            onChange={e => input.length < 500 && handleInputChange(e)}
-            maxLength={500}
-            className="flex-1 h-12 px-4 py-2 border-none focus:ring-0 focus:outline-none text-base bg-transparent min-w-[300px]"
-            placeholder="Type a message..."
-            disabled={!isMember}
-            aria-label="Type a message"
-            style={{ minWidth: 0 }}
-          />
-          {/* Send button on far right */}
-          <Button onClick={sendMessage} loading={loading} ariaLabel="Send message">Send</Button>
-        </form>
-        <p className="text-xs text-gray-400 mt-1 ml-2">Press <b>Enter</b> to send</p>
-      </footer>
-      {effectOverlay === "hearts" && (
-        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center" aria-label="Hearts effect overlay">
-          {[...Array(14)].map((_, i) => (
-            <span key={i} className={`absolute creative-heart`} style={{
-              left: '50%',
-              top: '50%',
-              '--drift': `${(i-7)*18}px`,
-              '--spin': `${(i%2===0?1:-1)*360}deg`,
-              '--delay': `${i*0.07}s`,
-              fontSize: `${28 + Math.random() * 18}px`,
-              color: `rgba(255,${100 + Math.random() * 50},${200 + Math.random() * 55},0.9)`
-            }}>❤️</span>
-          ))}
-        </div>
-      )}
+          {loading ? (
+            <div className="flex-1 flex items-center justify-center text-purple-400 animate-pulse">Loading messages...</div>
+          ) : messages.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-gray-400 py-12">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <circle cx="12" cy="12" r="10" stroke="#a78bfa" strokeWidth="2" fill="#f3e8ff" />
+                <text x="50%" y="55%" textAnchor="middle" fill="#a78bfa" fontSize="24" fontFamily="Arial" dy=".3em">💬</text>
+              </svg>
+              <p className="text-lg font-semibold">No messages yet</p>
+              <p className="text-sm">Be the first to send a message!</p>
+            </div>
+          ) : (
+            (() => {
+              let lastDate = null;
+              return messages.map((msg, i) => {
+                const isCurrentUser = msg.uid === auth.currentUser?.uid;
+                const msgDate = msg.timestamp && msg.timestamp.toDate ? msg.timestamp.toDate().toDateString() : null;
+                const showDate = msgDate && msgDate !== lastDate;
+                lastDate = msgDate;
+                return (
+                  <React.Fragment key={msg.id || i}>
+                    {showDate && (
+                      <div className="flex justify-center my-2">
+                        <span className="bg-purple-100 text-purple-700 px-4 py-1 rounded-full text-xs font-semibold shadow">{msgDate}</span>
+                      </div>
+                    )}
+                    <div className={`flex mb-2 w-full ${isCurrentUser ? "justify-end" : "justify-start"}`}>
+                      {!isCurrentUser && (
+                        msg.senderPhotoURL ? (
+                          <img
+                            src={msg.senderPhotoURL}
+                            alt={msg.senderName}
+                            className="h-9 w-9 rounded-full mr-3 border shadow"
+                          />
+                        ) : <span className="mr-3"><DefaultAvatar size={36} /></span>
+                      )}
+                      <div className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 shadow-lg relative flex flex-col items-${isCurrentUser ? 'end' : 'start'} "
+                        ${isCurrentUser
+                          ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white rounded-l-2xl rounded-br-2xl ml-auto"
+                          : "bg-white text-gray-800 rounded-r-2xl rounded-bl-2xl border mr-auto"}
+                      `}>
+                        {!isCurrentUser && (
+                          <p className="text-xs font-bold mb-1 text-purple-700">{msg.senderName || "Unknown"}</p>
+                        )}
+                        <p className="break-words text-base">{msg.text}</p>
+                        <p className={`text-xs mt-1 ${isCurrentUser ? "text-purple-200" : "text-gray-400"}`}>
+                          {msg.timestamp && msg.timestamp.toDate
+                            ? format(msg.timestamp.toDate(), "h:mm a")
+                            : "Just now"}
+                        </p>
+                      </div>
+                      {isCurrentUser && (
+                        auth.currentUser?.photoURL ? (
+                          <img
+                            src={auth.currentUser?.photoURL}
+                            alt="You"
+                            className="h-9 w-9 rounded-full ml-3 border shadow"
+                          />
+                        ) : <span className="ml-3"><DefaultAvatar size={36} /></span>
+                      )}
+                    </div>
+                  </React.Fragment>
+                );
+              });
+            })()
+          )}
+          <div ref={messagesEndRef} />
+          {showScrollToBottom && (
+            <button
+              className="fixed bottom-28 right-6 z-40 bg-purple-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-purple-700 transition"
+              onClick={() => {
+                messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+                setShowScrollToBottom(false);
+              }}
+              style={{ minWidth: 120 }}
+            >
+              New messages ↓
+            </button>
+          )}
+        </main>
+        {/* Message Input */}
+        <footer className="w-full max-w-2xl mx-auto sticky bottom-0 z-10">
+          <div className="bg-white/80 rounded-2xl shadow-2xl border border-gray-200 px-4 py-3 flex flex-col gap-2">
+            {/* Error feedback for send */}
+            {sendError && (
+              <div className="mb-2 text-sm text-red-600 bg-red-50 rounded p-2 text-center animate-pulse" aria-live="assertive">{sendError}</div>
+            )}
+            <form
+              onSubmit={sendMessage}
+              className="flex items-center w-full gap-2"
+              style={{ position: 'relative' }}
+            >
+              {/* Emoji button on far left */}
+              <button
+                type="button"
+                aria-label="Open emoji picker"
+                onClick={() => setEmojiPickerOpen(!emojiPickerOpen)}
+                className="h-12 w-12 flex items-center justify-center bg-yellow-100 hover:bg-yellow-200 transition text-2xl rounded-full border-none focus:outline-none shadow-sm mr-2 focus:ring-2 focus:ring-purple-400"
+                tabIndex={0}
+                style={{ minWidth: 48 }}
+              >
+                <span role="img" aria-label="emoji">😊</span>
+              </button>
+              {emojiPickerOpen && (
+                <div id="emoji-picker" className="absolute bottom-16 left-0 bg-white border rounded shadow p-2 z-10 flex flex-wrap gap-1">
+                  {["😀","😂","😍","😎","😭","👍","🎉","❤️","🔥","👏"].map(e => (
+                    <button key={e} type="button" className="text-2xl" onClick={() => handleEmoji(e)}>{e}</button>
+                  ))}
+                </div>
+              )}
+              {/* Input box in the center */}
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={e => input.length < 500 && handleInputChange(e)}
+                maxLength={500}
+                className="flex-1 h-12 px-4 py-2 border-none focus:ring-0 focus:outline-none text-base bg-transparent min-w-[100px]"
+                placeholder="Type a message..."
+                disabled={!isMember}
+                aria-label="Type a message"
+                style={{ minWidth: 0 }}
+              />
+              {/* Send button on far right */}
+              <Button onClick={sendMessage} loading={loading} ariaLabel="Send message">Send</Button>
+            </form>
+            <p className="text-xs text-gray-400 mt-1 ml-2">Press <b>Enter</b> to send</p>
+          </div>
+        </footer>
+      </div>
       {effectOverlay === "balloons" && (
         <div className="pointer-events-none fixed inset-0 z-50 flex items-end justify-center">
           {[...Array(8)].map((_, i) => (
