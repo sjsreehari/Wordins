@@ -1,4 +1,4 @@
-# Wordins 💬
+# Wordins 
 
 **Chat. Create. Connect.**
 
@@ -6,16 +6,16 @@ Wordins is a modern, real-time chat application built with React and Firebase. I
 
 ![Wordins Logo](https://img.shields.io/badge/Wordins-Chat%20App-purple?style=for-the-badge&logo=chat&logoColor=white)
 
-## ✨ Features
+##  Features
 
-### 🏠 **Home Dashboard**
+###  **Home Dashboard**
 - **Create Chat Rooms**: Start your own chat rooms with custom names
 - **Join Existing Rooms**: Connect to public or private rooms
 - **Recent Rooms**: Quick access to your recently visited chat rooms
 - **Room Management**: Leave rooms, view room info, and manage memberships
 - **Invite-Only Rooms**: Create private rooms with approval-based joining
 
-### 💬 **Real-Time Chat**
+###  **Real-Time Chat**
 - **Live Messaging**: Instant message delivery with Firebase Firestore
 - **Typing Indicators**: See when others are typing
 - **Message Timestamps**: Track when messages were sent
@@ -24,7 +24,7 @@ Wordins is a modern, real-time chat application built with React and Firebase. I
 - **Auto-scroll**: Automatically scroll to new messages
 - **Responsive Design**: Works seamlessly on desktop and mobile
 
-### 👤 **User Experience**
+###  **User Experience**
 - **Google Authentication**: Secure login with Google OAuth
 - **Custom Avatars**: Choose from 8 unique avatar options
 - **Profile Management**: Personalize your profile and settings
@@ -32,14 +32,14 @@ Wordins is a modern, real-time chat application built with React and Firebase. I
 - **Toast Notifications**: Real-time feedback for all actions
 - **Loading States**: Smooth loading indicators throughout the app
 
-### 🎨 **Visual Design**
+###  **Visual Design**
 - **Modern UI**: Beautiful gradient backgrounds and glassmorphism effects
 - **Responsive Layout**: Optimized for all screen sizes
 - **Smooth Animations**: Engaging transitions and hover effects
 - **Dark/Light Theme**: Elegant color scheme with purple and blue gradients
 - **Interactive Elements**: Hover effects, focus states, and micro-interactions
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -86,7 +86,7 @@ Wordins is a modern, real-time chat application built with React and Firebase. I
 6. **Open your browser**
    Navigate to `http://localhost:5173`
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### Frontend
 - **React 18** - Modern React with hooks
@@ -112,7 +112,7 @@ Wordins is a modern, real-time chat application built with React and Firebase. I
 - **Autoprefixer** - CSS vendor prefixing
 - **ESLint** - Code linting (if configured)
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 wordins/
@@ -142,36 +142,21 @@ wordins/
 └── package.json           # Dependencies and scripts
 ```
 
-## 🔧 Available Scripts
+##  Available Scripts
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build locally
 
-## 🚀 Deployment
 
-### Netlify (Recommended)
-1. Connect your GitHub repository to Netlify
-2. Set build command: `npm run build`
-3. Set publish directory: `dist`
-4. Add environment variables in Netlify dashboard
-5. Deploy!
-
-### Other Platforms
-The app can be deployed to any static hosting service:
-- Vercel
-- GitHub Pages
-- Firebase Hosting
-- AWS S3 + CloudFront
-
-## 🔐 Security
+##  Security
 
 - **Firestore Rules**: Configured to secure user data and chat rooms
 - **Authentication**: Google OAuth for secure user authentication
 - **Input Validation**: Client-side validation for all user inputs
 - **XSS Protection**: Sanitized user inputs and safe rendering
 
-## 🎯 Key Features Explained
+##  Key Features Explained
 
 ### Room Management
 - **Public Rooms**: Anyone can join with the room name
@@ -191,26 +176,14 @@ The app can be deployed to any static hosting service:
 - **Loading States**: Smooth loading indicators for all async operations
 - **Error Handling**: Comprehensive error messages and fallbacks
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
+##  Author
 
 **Sreehari S J**
 - GitHub: [@sjsreehari](https://github.com/sjsreehari)
 - LinkedIn: [sreeharisj](https://www.linkedin.com/in/sreeharisj/)
 - Instagram: [@sj_sreehari](https://www.instagram.com/sj_sreehari/)
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - Firebase for providing excellent real-time database services
 - React team for the amazing framework
@@ -223,7 +196,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] File sharing capabilities
 - [ ] Message reactions and replies
 - [ ] Custom themes and personalization
-- [ ] Mobile app (React Native)
 - [ ] Advanced moderation tools
 - [ ] Bot integration
 - [ ] Message search and history
